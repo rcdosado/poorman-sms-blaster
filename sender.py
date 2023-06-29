@@ -3,6 +3,7 @@ import asyncio
 import logging
 import termux
 
+# turned off by default
 DISABLE_CONSOLE_LOGGING = False
 
 # Configure logger
@@ -16,6 +17,10 @@ logger.disabled = DISABLE_CONSOLE_LOGGING
 
 
 def validate_csv_file(csv_file):
+    """
+    This function validates a csv file for some needed requirements
+    returns True on success, False otherwise
+    """
     try:
         with open(csv_file, "r") as file:
             csv_reader = csv.reader(file)
@@ -38,14 +43,17 @@ def validate_csv_file(csv_file):
     return True
 
 
-def convert_csv_to_json(csv_file):
+def read_csv_file(csv_file):
+    """
+    returns a list containing the rows from the CSV File, converted into list of dict
+    """
     if not validate_csv_file(csv_file):
         logger.info("Aborting program, validation had failed")
         return None
 
     data = []
 
-    # Read the CSV file and convert each row to a dictionary
+    # Read the CSV file and convert into a list of dictionary
     with open(csv_file, "r") as file:
         csv_reader = csv.reader(file)
         headers = next(csv_reader)  # Skip header row
@@ -59,11 +67,13 @@ def convert_csv_to_json(csv_file):
                 "message": row[4],
             }
             data.append(item)
-
     return data
 
 
 async def sms_send(sms):
+    """
+    async function that sends an SMS
+    """
     # Simulating sending an SMS
     logger.info(f"Sending SMS to {sms['mobile']}...")
     number = sms["mobile"]
@@ -79,16 +89,26 @@ async def sms_send(sms):
     message: {sms['message']}
     """
 
+    # the function that made me write this app
     termux.SMS.send(message_to_send, number)
+
+    # provide result
     print(f"Message sent to the {number}, Recipient's name : {recipient}")
     logger.info(f"SMS sent to {sms['firstName']} {sms['lastName']}: {sms['message']}")
 
 
 async def send_sms_async(sms):
+    """
+    Wrapper function for sms_send
+    """
     await sms_send(sms)
 
 
 async def main(sms_list):
+    """
+    schedules every sms_send as tasks, assigns to worker threads (i think!)
+    and gather the results
+    """
     tasks = [send_sms_async(sms) for sms in sms_list]
     await asyncio.gather(*tasks)
 
@@ -96,6 +116,6 @@ async def main(sms_list):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     # replace sms_list.csv with your own CSV file, make sure to follow column formats
-    message_list = convert_csv_to_json("sms_list.csv")
+    message_list = read_csv_file("sms_list.csv")
     # send text asynchronously
     asyncio.run(main(message_list))
