@@ -1,10 +1,10 @@
-# poorman-sms-blaster
+# Poorman-sms-blaster
 SMS text blaster to all people from your CSV file
 
-## requirements
+## Requirements
 You need to have an Android phone with credits (of course), termux, python 3.x 
 
-## setup
+## Setup
 1. install termux (find a tutorial how to do this)
 2. install python inside termux
 3. clone this repo, and cd inside
