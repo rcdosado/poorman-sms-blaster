@@ -1,5 +1,5 @@
-# Poorman-sms-blaster
-SMS text blaster to all people from your CSV file
+# Poorman SMS Blaster
+Asynchronously send SMS to people from your CSV file, *lazingly Fast and Dirt cheap way to text lots of people!
 
 ## Requirements
 You need to have an Android phone with credits (of course), termux, python 3.x 
