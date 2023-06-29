@@ -1,7 +1,6 @@
 import csv
 import asyncio
 import logging
-import concurrent.futures
 import termux
 
 DISABLE_CONSOLE_LOGGING = False
@@ -42,7 +41,7 @@ def validate_csv_file(csv_file):
 def convert_csv_to_json(csv_file):
     if not validate_csv_file(csv_file):
         logger.info("Aborting program, validation had failed")
-        exit(-1)
+        return None
 
     data = []
 
@@ -61,14 +60,17 @@ def convert_csv_to_json(csv_file):
             }
             data.append(item)
 
-    # __import__('pdb').set_trace()
     return data
 
 
 async def sms_send(sms):
     # Simulating sending an SMS
     logger.info(f"Sending SMS to {sms['mobile']}...")
-    number = sms['mobile']
+    number = sms["mobile"]
+    recipient = f"sms['firstName] sms['lastName]"
+
+    # this is the message that the recipient will receive
+    # make sure to use correct variable name for firstName, lastName etc..
     message_to_send = f"""
     id: {sms['id']}
     firstname: {sms['firstName']}
@@ -76,9 +78,9 @@ async def sms_send(sms):
     mobile number: {sms['mobile']}
     message: {sms['message']}
     """
-    
-    termux.SMS.send(message_to_send,number)
-    print(f"Message sent to {number}")
+
+    termux.SMS.send(message_to_send, number)
+    print(f"Message sent to the {number}, Recipient's name : {recipient}")
     logger.info(f"SMS sent to {sms['firstName']} {sms['lastName']}: {sms['message']}")
 
 
@@ -92,6 +94,8 @@ async def main(sms_list):
 
 
 if __name__ == "__main__":
-    message_list = convert_csv_to_json("sms_list.csv")
     logging.basicConfig(level=logging.INFO)
+    # replace sms_list.csv with your own CSV file, make sure to follow column formats
+    message_list = convert_csv_to_json("sms_list.csv")
+    # send text asynchronously
     asyncio.run(main(message_list))
